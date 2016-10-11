@@ -37,6 +37,11 @@ Inductive g_clo_nt: Type :=
 | Start_clo : g_clo_nt
 | Transf_clo_nt : non_terminal -> g_clo_nt.
 
+Lemma nt_eqdec':
+ (forall x y: non_terminal, {x=y}+{x<>y}) ->
+ (forall x y: g_clo_nt, {x=y}+{x<>y}).
+Proof. decide equality. Qed.
+
 Notation sf:= (list (non_terminal + terminal)).
 Notation sfc:= (list (g_clo_nt + terminal)).
 Notation nlist:= (list g_clo_nt).
@@ -258,6 +263,8 @@ Qed.
 Definition g_clo (g: cfg non_terminal terminal): (cfg g_clo_nt terminal):= {|
 start_symbol:= Start_clo;
 rules:= g_clo_rules g;
+t_eqdec:= t_eqdec g;
+nt_eqdec:= nt_eqdec' (nt_eqdec g);
 rules_finite:= g_clo_finite g
 |}.
 

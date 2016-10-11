@@ -17,7 +17,6 @@ Require Import List.
 Require Import Ring.
 Require Import Omega.
 Require Import NPeano.
-Require Import Classical_Prop.
 
 Require Import misc_arith.
 Require Import misc_list.
@@ -33,13 +32,18 @@ Open Scope list_scope.
 (* PIGEONHOLE PRINCIPLE                                                  *)
 (* --------------------------------------------------------------------- *)
 
-Inductive remove {A} (a:A): list A -> list A -> Prop :=
+Section Pigeon.
+
+Variable A: Type.
+Variable A_eqdec: forall x y:A, {x=y}+{x<>y}.
+
+
+Inductive remove (a:A): list A -> list A -> Prop :=
  | remove_nil: remove a nil nil
  | remove_na: forall x xs ys, x <> a -> remove a xs ys -> remove a (x :: xs) (x :: ys)
  | remove_a: forall xs ys, remove a xs ys -> remove a (a :: xs) ys.
 
 Lemma remove_exists: 
-forall {A: Type},
 forall a: A,
 forall xs: list A,
 exists ys: list A, 
@@ -49,7 +53,7 @@ induction xs.
 - exists nil.
   apply remove_nil. 
 - elim IHxs; intros.
-  generalize (classic (a=a0)); intros [HH|HH].
+  destruct (A_eqdec a a0) as [HH|HH].
   subst; exists x; constructor 3; assumption.
   exists (a0 :: x).
   apply remove_na.
@@ -59,7 +63,6 @@ induction xs.
 Qed.
 
 Lemma remove_notin:
-forall {A: Type},
 forall a: A,
 forall xs ys: list A,
 ~ In a xs ->
@@ -92,14 +95,13 @@ induction xs.
 Qed.
 
 Lemma remove_length_in: 
-forall {A: Type},
 forall a: A,
 forall xs ys: list A,
 In a xs -> 
 remove a xs ys -> 
 length ys < length xs.
 Proof.
-intros A a xs ys H1 H2.
+intros a xs ys H1 H2.
 revert H1.
 induction H2.
 - intros H.
@@ -114,12 +116,8 @@ induction H2.
   + specialize (IHremove H3).
     simpl.
     omega.
-- intros H3. 
-  assert (In a xs \/ ~ In a xs). 
-    {
-    apply classic. 
-    }
-  destruct H as [H | H].
+- intros H3.
+  destruct (In_dec A_eqdec a xs) as [H|H].
   + specialize (IHremove H).
     simpl.
     omega.
@@ -131,7 +129,6 @@ induction H2.
 Qed.
 
 Lemma remove_in_notin: 
-forall {A: Type},
 forall a: A,
 forall xs ys: list A,
 forall e: A,
@@ -139,7 +136,7 @@ remove a xs ys ->
 In e xs -> 
 e = a \/ In e ys.
 Proof.
-intros A a xs ys e H.
+intros a xs ys e H.
 revert e.
 induction H.
 - intros e H.
@@ -171,7 +168,6 @@ induction H.
 Qed.
 
 Lemma pigeon_aux: 
-forall {A: Type},
 forall x y: list A,
 (forall e, In e x -> In e y) ->
 (length x > length y) ->
@@ -191,7 +187,7 @@ elim H1.
   eapply remove_length_in; auto.
   apply H2 with (y:=y').
   + intros.
-    generalize (@remove_in_notin A x0 y y'). 
+    generalize (@remove_in_notin x0 y y'). 
     intros.
     destruct H7 with e. 
     * exact Hy'. 
@@ -207,27 +203,18 @@ elim H1.
 Qed.
 
 Lemma nodup_or:
-forall A: Type,
 forall a: A,
 forall x: list A,
 ~ NoDup (a :: x) ->
 ~ NoDup x \/ In a x.
 Proof.
 intros.
-apply imply_to_or.
-intros.
-generalize (classic (In a x)).
-intros H1.
-destruct H1 as [H1 | H1].
-- exact H1. 
-- destruct H. 
-  constructor. 
-  + exact H1.
-  + exact H0.
+destruct (In_dec A_eqdec a x) as [Hin|Hin]; auto.
+left; intro HH.
+apply H; constructor; auto.
 Qed.
 
 Lemma pigeon:
-forall A: Type,
 forall x y: list A,
 (forall e: A, In e x -> In e y) ->
 length x = length y + 1->
@@ -235,7 +222,7 @@ exists d: A,
 exists x1 x2 x3: list A,
 x = x1 ++ [d] ++ x2 ++ [d] ++ x3.
 Proof.
-intros A x y H1 H2.
+intros x y H1 H2.
 apply pigeon_aux in H1.
 - clear H2.
   induction x.
@@ -261,3 +248,5 @@ apply pigeon_aux in H1.
       reflexivity. 
 - omega.
 Qed.
+
+End Pigeon.

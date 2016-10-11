@@ -46,6 +46,12 @@ Inductive non_terminal': Type:=
 | Lift_nt: non_terminal -> non_terminal'
 | New_ss. 
 
+
+Lemma nt_eqdec' : 
+ (forall (x y: non_terminal), {x=y}+{x<>y}) ->
+ forall (x y: non_terminal'), {x=y}+{x<>y}.
+Proof. decide equality. Qed.
+
 Notation symbol:= (non_terminal + terminal)%type.
 Notation symbol':= (non_terminal' + terminal)%type.
 Notation nlist:= (list non_terminal).
@@ -319,6 +325,8 @@ Qed.
 Definition g_emp (g: cfg non_terminal terminal): cfg non_terminal' terminal := {|
 start_symbol:= New_ss;
 rules:= g_emp_rules g;
+t_eqdec:= t_eqdec g;
+nt_eqdec:= nt_eqdec' (nt_eqdec g);
 rules_finite:= g_emp_finite g
 |}.
 
@@ -2042,6 +2050,8 @@ Qed.
 Definition g_emp' (g: cfg non_terminal terminal): cfg (non_terminal' _) terminal := {|
 start_symbol:= New_ss _;
 rules:= g_emp'_rules g;
+t_eqdec:= t_eqdec g;
+nt_eqdec:= nt_eqdec' (nt_eqdec g);
 rules_finite:= g_emp'_finite g
 |}.
 
@@ -3064,7 +3074,7 @@ revert Heqw2.
 revert Heqw1.
 revert n.
 induction H.
-- admit. (* eee *)
+- intros n H; rewrite H; intros E; discriminate E.
 - admit. (* eee *)
 Qed.
 
