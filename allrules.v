@@ -6,8 +6,8 @@
    (iv) pumping lemma for context-free languages.
    
    More information can be found in the paper "Formalization of the
-   pumping lemma for context-free languages", submitted to
-   LATA 2016.
+   Pumping Lemma for Context-Free Languages", submitted to
+   JFR.
    
    Marcus Vinícius Midena Ramos
    mvmramos@gmail.com
@@ -214,154 +214,6 @@ destruct s.
       }
 Qed.
 
-Lemma length_max_sf_cons_v2:
-forall s: slist,
-forall a: sf,
-forall n: nat,
-length_max_sf (a :: s) = n ->
-length a = n /\ length_max_sf s <= n \/
-length a <= n /\ length_max_sf s = n.
-Proof.
-intros s a n H1.
-assert (H2: length_max_sf (a :: s) = length a \/
-            length_max_sf (a :: s) = length_max_sf s).
-  {
-  apply length_max_sf_cons_v1.
-  }
-destruct H2 as [H2 | H2].
-- left.
-  split.
-  + omega.
-  + assert (H3: length_max_sf (a :: s) <= n). { admit. } 
-    apply length_max_sf_cons_le in H3.
-    destruct H3 as [_ H3].
-    exact H3.
-- right.
-  split.
-  + assert (H3: length_max_sf (a :: s) <= n). { admit. } 
-    apply length_max_sf_cons_le in H3.
-    destruct H3 as [H3 _].
-    exact H3.
-  + omega.
-Qed.
-
-Lemma length_max_sf_or:
-forall l1 l2: slist,
-length_max_sf (l1 ++ l2) = length_max_sf l1 \/
-length_max_sf (l1 ++ l2) = length_max_sf l2.
-Proof.
-induction l1.
-- intros l2.
-  right.
-  simpl. 
-  reflexivity.
-- intros l2.
-  specialize (IHl1 l2).
-  destruct IHl1 as [IHl1 | IHl1].
-  + left.
-    simpl.
-    assert (H1: (length_max_sf (l1 ++ l2)) <= (length a) \/
-                (length_max_sf (l1 ++ l2)) > (length a)) by omega.
-    destruct H1 as [H1 | H1].
-    * apply leb_correct in H1.
-      rewrite H1.
-      apply leb_complete in H1.
-      assert (H2: length_max_sf l1 <= length a). 
-        { 
-        rewrite IHl1 in H1.
-        exact H1.
-        }
-      apply leb_correct in H2.
-      rewrite H2.
-      reflexivity.
-    * apply leb_correct_conv in H1.
-      rewrite H1.
-      apply leb_complete_conv in H1.
-      rewrite IHl1 in H1.
-      apply leb_correct_conv in H1.
-      rewrite H1.
-      exact IHl1.
-  + right.
-    assert (H1: (length_max_sf l2) <= (length a)  \/
-                (length_max_sf l2) > (length a)) by omega.
-    destruct H1 as [H1 | H1].
-    * admit. (* +++ *)
-    * rewrite <- IHl1 in H1.
-      simpl. 
-      apply leb_correct_conv in H1.
-      rewrite H1.
-      exact IHl1. 
-Qed.
-
-Lemma length_max_sf_or_cons:
-forall s: slist,
-forall a: sf,
-forall n: nat,
-length_max_sf s <= n /\ length a = n \/
-length_max_sf s = n /\ length a <= n ->
-length_max_sf (a :: s) = n.
-Proof.
-induction s.
-- intros a n H.
-  destruct H as [H | H].
-  + destruct H as [_ H].
-    simpl.  
-    exact H.
-  + destruct H as [H1 H2].
-    simpl in H1.
-    subst.
-    simpl. 
-    omega.
-- intros a0 n H.
-  destruct H as [H | H].
-  + destruct H as [H1 H2].
-    apply length_max_sf_cons_le in H1.
-    destruct H1 as [H1 H3].
-    simpl. 
-    assert (H5: (length_max_sf s) <= (length a) \/
-                (length_max_sf s) > (length a)) by omega.
-    destruct H5 as [H5 | H5].
-    * apply leb_correct in H5.
-      rewrite H5.
-      rewrite <- H2 in H1.
-      apply leb_correct in H1.
-      rewrite H1.
-      exact H2.
-    * apply leb_correct_conv in H5.
-      rewrite H5.
-      rewrite <- H2 in H3.
-      apply leb_correct in H3.
-      rewrite H3.
-      exact H2.
-  + destruct H as [H1 H2].
-    apply length_max_sf_cons_v2 in H1.
-    assert (H5: (length_max_sf s) <= (length a) \/
-                (length_max_sf s) > (length a)) by omega.
-    destruct H5 as [H5 | H5].
-    * apply leb_correct in H5.
-      simpl.
-      rewrite H5.
-      {
-      destruct H1 as [H1 | H1].
-      - destruct H1 as [H3 H4].
-        rewrite <- H3 in H2.
-        apply leb_correct in H2.
-        admit.
-      - destruct H1 as [H3 H4].
-        admit.
-      }
-    * apply leb_correct_conv in H5.
-      simpl.
-      rewrite H5.
-      simpl in IHs.
-      apply IHs.
-      {
-      destruct H1 as [H1 | H1].
-      - admit.
-      - admit.
-      } 
-Qed.
-
 Lemma length_max_sf_app_le:
 forall l1 l2: slist,
 forall n: nat,
@@ -389,57 +241,6 @@ induction l1.
     apply leb_correct in H5.
     rewrite H5.
     exact H3.
-Qed.
-
-Lemma length_max_sf_or_app_eq:
-forall l1 l2: slist,
-forall n: nat,
-(length_max_sf l1 = n /\ length_max_sf l2 <= n) \/
-(length_max_sf l2 = n /\ length_max_sf l1 <= n) ->
-length_max_sf (l1 ++ l2) = n.
-Proof.
-induction l1.
-- intros l2 n H.
-  simpl in H.
-  destruct H as [H | H].
-  + subst.
-    simpl. 
-    omega.
-  + simpl.
-    omega.
-- intros l2 n H.
-  specialize (IHl1 l2 n).
-  destruct H as [H | H].
-  + destruct H as [H1 H2].
-    apply length_max_sf_cons_v2 in H1.
-    change ((a :: l1) ++ l2) with (a :: (l1 ++ l2)).
-    apply length_max_sf_or_cons.
-    destruct H1 as [H1 | H1].
-    * left.
-      {
-      split.
-      - destruct H1 as [H1 _].    
-        admit.
-      - destruct H1 as [H3 H4].
-        exact H3.
-      } 
-    * right.
-      {
-      split.
-      - destruct H1 as [H1 _].
-        admit.
-      - destruct H1 as [H1 _].
-        exact H1.
-      }
-  + destruct H as [H1 H2].
-    apply length_max_sf_cons_le in H2.
-    change ((a :: l1) ++ l2) with (a :: (l1 ++ l2)).
-    apply length_max_sf_or_cons.
-    destruct H2 as [H3 H4].
-    right.
-    split.
-    * admit. 
-    * exact H3.
 Qed.
 
 Fixpoint length_max (rl: rlist): nat:=
@@ -496,23 +297,6 @@ induction rl.
       rewrite H2.
       apply IHrl with (left:= left).
       exact H.
-Qed.
-
-Lemma length_max_or:
-forall l1 l2: rlist,
-forall n: nat,
-(length_max l1 = n /\ length_max l1 >= length_max l2) \/
-(length_max l2 = n /\ length_max l2 > length_max l1) ->
-length_max (l1 ++ l2) = n.
-Proof.
-admit.
-Qed.
-
-Lemma length_max_max:
-forall l1 l2: rlist,
-length_max (l1 ++ l2) = max (length_max l1) (length_max l2).
-Proof.
-admit.
 Qed.
 
 Definition npair (n: non_terminal): (non_terminal + terminal):= inl n.
@@ -902,70 +686,6 @@ induction l.
     exact H1.
 Qed.
 
-Lemma concat_symbol_length_max_sf_correct:
-forall l: slist,
-forall s: symbol,
-forall n: nat,
-l <> [] ->
-length_max_sf l = n ->
-length_max_sf (concat_symbol s l) = S n.
-Proof.
-induction l.
-- intros s n H.
-  destruct H.
-  reflexivity.
-- intros s n H1 H2.
-  apply length_max_sf_cons_v2 in H2.
-  simpl concat_symbol.
-  change ((s :: a) :: concat_symbol s l) with ([(s :: a)] ++ concat_symbol s l).
-  apply length_max_sf_or_app_eq.
-  assert (H: l = [] \/ l <> []). 
-    {
-    apply nil_not_nil. 
-    }
-  destruct H as [H | H].
-  + subst.
-    simpl. 
-    destruct H2 as [H2 | H2].
-    * left.
-      {
-      split.
-      - omega.
-      - omega.
-      }
-    * left.
-      {
-      split.
-      - simpl in H2.
-        destruct H2 as [H3 H4].
-        subst.
-        omega.
-      - omega.
-      }
-  + destruct H2 as [H2 | H2].
-    * left.
-      simpl. 
-      {
-      split. 
-      - apply eq_S.
-        destruct H2 as [H2 _]. 
-        exact H2.
-      - apply concat_symbol_length_max_sf_correct_aux. 
-        destruct H2 as [_ H2].
-        exact H2.
-      }
-    * right.
-      simpl.
-      { 
-      split.
-      - apply IHl.
-        + exact H.
-        + destruct H2 as [_ H2].
-          exact H2.
-      - omega. 
-      }
-Qed.
-
 Lemma concat_symbol_nil:
 forall s: symbol,
 concat_symbol s [] = [].
@@ -1252,53 +972,6 @@ left.
 reflexivity.
 Qed.
 
-Lemma concat_list_length_max_sf_correct:
-forall v: vlist,
-forall l: slist,
-forall n: nat,
-v <> [] ->
-l <> [] ->
-length_max_sf l = n ->
-length_max_sf (concat_list v l) = S n.
-Proof.
-induction v.
-- intros l n H.
-  destruct H.
-  reflexivity.
-- intros l n H1 H2 H3.
-  simpl.
-  assert (H4: length_max_sf (concat_symbol a l ++ concat_list v l) = length_max_sf (concat_symbol a l) \/
-              length_max_sf (concat_symbol a l ++ concat_list v l) = length_max_sf (concat_list v l)).
-    {
-    apply length_max_sf_or.
-    }
-  destruct H4 as [H4 | H4].
-  + rewrite H4.
-    apply concat_symbol_length_max_sf_correct.
-    * exact H2.
-    * exact H3.
-  + assert (H5: v = [] \/ v <> []).
-      {
-      apply nil_not_nil.
-      }
-    destruct H5 as [H5 | H5].
-    * subst.
-      simpl in H4.
-      rewrite app_nil_r in H4.
-      {
-      apply concat_symbol_length_max_sf_not_zero in H4. 
-      - contradiction.
-      - exact H2.
-      } 
-    * rewrite H4.
-      {
-      apply IHv.
-      - exact H5.
-      - exact H2.
-      - exact H3.
-      } 
-Qed.
-
 Lemma in_concat_list_exists:
 forall v: vlist,
 forall l: slist,
@@ -1456,29 +1129,6 @@ induction n.
       right.
       exact H.
 Qed.    
-
-Lemma all_sf_with_length_max_correct:
-forall n: nat,
-forall v: vlist,
-(n = 0 \/ v <> []) ->
-length_max_sf (all_sf_with n v) = n.
-Proof.
-intros n v H.
-destruct H as [H | H].
-- subst.
-  simpl. 
-  reflexivity.
-- induction n.
-  + simpl. 
-    reflexivity.
-  + simpl. 
-    apply concat_list_length_max_sf_correct with (v:= v) in IHn.
-    * exact IHn.
-    * exact H.
-    * apply all_sf_with_not_nil.
-      right.
-      exact H.
-Qed.
 
 Lemma all_sf_with_not_nil_inv:
 forall n: nat,
@@ -1724,20 +1374,6 @@ induction n.
   exact H.
 Qed. 
 
-Lemma all_rules_left_length_max_correct:
-forall n: nat,
-forall a: non_terminal,
-forall v: vlist,
-n = 0 \/ v <> [] ->
-length_max (all_rules_left n a v) = n.
-Proof.
-unfold all_rules_left.
-intros n a v H.
-apply all_rules_match_length_max_correct.
-apply all_sf_with_length_max_correct.
-exact H.
-Qed.
-
 Lemma all_rules_left_not_nil:
 forall n: nat,
 forall a: non_terminal,
@@ -1855,40 +1491,6 @@ induction nl.
     exact H.
 Qed.
 
-Lemma all_rules_with_length_max_correct:
-forall nl: nlist,
-forall v: vlist,
-forall n: nat,
-nl <> [] ->
-v <> [] ->
-length_max (all_rules_with n nl v) = n.
-Proof.
-induction nl.
-- intros v n H. 
-  destruct H. 
-  reflexivity. 
-- intros v n H1 H2.
-  simpl.
-  rewrite length_max_max.
-  rewrite all_rules_left_length_max_correct.
-  + assert (H3: nl = [] \/ nl <> []).
-     {
-     apply nil_not_nil. 
-     }
-   destruct H3 as [H3 | H3].
-   * subst.
-     simpl. 
-     apply max_n_0.
-   * {
-     rewrite IHnl.
-     - apply max_n_n.
-     - exact H3. 
-     - exact H2.
-     }
-  + right.
-    exact H2.
-Qed.
-
 Fixpoint all_rules_up_to (n: nat) (nl: nlist) (v: vlist): rlist:=
 match n with
 | O => all_rules_with 0 nl v
@@ -1974,47 +1576,6 @@ induction n.
     omega.
 Qed.
 
-Lemma all_rules_up_to_length_max_correct:
-forall n: nat,
-forall nl: nlist,
-forall v: vlist,
-nl <> [] ->
-v <> [] ->
-length_max (all_rules_up_to n nl v) = n.
-Proof.
-induction n.
-- intros nl v H1 H2.
-  simpl.
-  apply all_rules_with_length_max_correct.
-  + exact H1.
-  + exact H2.
-- intros nl v Ha Hb.
-  simpl. 
-  assert (H1: length_max (all_rules_with (S n) nl v) > length_max (all_rules_up_to n nl v)).
-    {
-    rewrite all_rules_with_length_max_correct. 
-    - rewrite IHn.
-      + omega.
-      + exact Ha.
-      + exact Hb.
-    - exact Ha.
-    - exact Hb.
-    }
-  assert (H2: length_max (all_rules_with (S n) nl v ++ all_rules_up_to n nl v) =
-              length_max (all_rules_with (S n) nl v)).
-    {
-    apply length_max_or.
-    left.
-    split.
-    - reflexivity.
-    - omega.
-    }
-  rewrite H2.
-  apply all_rules_with_length_max_correct.
-  + exact Ha.
-  + exact Hb.
-Qed.
-
 Definition all_rules (rl: rlist) (n: nat): rlist:=
 all_rules_up_to n (all_non_terminals rl) (all_symbols rl).
 
@@ -2066,22 +1627,6 @@ intros n rl l r H.
 unfold all_rules in H.
 apply all_rules_up_to_length_correct in H.
 exact H.
-Qed.
-
-Lemma all_rules_length_max_correct:
-forall rl: list (non_terminal * sf),
-forall n: nat,
-rl <> [] ->
-length_max (all_rules rl n) = n.
-Proof.
-unfold all_rules.
-intros rl n H.
-rewrite all_rules_up_to_length_max_correct.
-- reflexivity.
-- apply all_non_terminals_not_nil.
-  exact H.
-- apply all_symbols_not_nil. 
-  exact H.
 Qed.
 
 Lemma in_rl_left_in_all_non_terminals:
