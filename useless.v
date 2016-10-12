@@ -99,6 +99,8 @@ Qed.
 Definition g_use (g: cfg _ _): cfg _ _:= {|
 start_symbol:= start_symbol g;
 rules:= g_use_rules g;
+t_eqdec:= t_eqdec g;
+nt_eqdec:= nt_eqdec g;
 rules_finite:= g_use_finite g
 |}.
 

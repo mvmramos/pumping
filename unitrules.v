@@ -150,6 +150,8 @@ Qed.
 Definition g_unit (g: cfg _ _): cfg _ _ := {|
 start_symbol:= start_symbol g;
 rules:= g_unit_rules g;
+t_eqdec:= t_eqdec g;
+nt_eqdec:= nt_eqdec g;
 rules_finite:= g_unit_finite g
 |}.
 

@@ -82,6 +82,17 @@ Notation vlist:= (list symbol).
 Inductive non_terminal': Type:=
 | Lift_r: sf -> non_terminal'.
 
+Lemma nt_eqdec':
+ (forall (x y:terminal), {x=y}+{x<>y}) ->
+ (forall (x y:non_terminal), {x=y}+{x<>y}) ->
+ forall (x y:non_terminal'), {x=y}+{x<>y}.
+Proof.
+intros.
+assert (forall (l1 l2:vlist), {l1=l2}+{l1<>l2}).
+ apply list_eq_dec; decide equality.
+decide equality.
+Qed.
+
 Notation sf':= (list (non_terminal' + terminal)).
 Notation ntlist':= (list non_terminal').
 Notation tlist:= (list terminal).
@@ -1117,6 +1128,8 @@ Qed.
 Definition g_cnf (g: cfg non_terminal terminal): cfg non_terminal' terminal := {|
 start_symbol:= Lift_r [inl (start_symbol g)];
 rules:= g_cnf_rules g;
+t_eqdec:= t_eqdec g;
+nt_eqdec:= nt_eqdec' (t_eqdec g) (nt_eqdec g);
 rules_finite:= g_cnf_finite g
 |}.
 
@@ -1186,6 +1199,8 @@ Qed.
 Definition g_cnf' (g: cfg non_terminal terminal) : cfg non_terminal' terminal:= {|
 start_symbol:= start_symbol (g_cnf g);
 rules:= g_cnf'_rules g;
+t_eqdec:= t_eqdec g;
+nt_eqdec:= nt_eqdec' (t_eqdec g) (nt_eqdec g);
 rules_finite:= g_cnf'_finite g
 |}.
 
@@ -2172,7 +2187,11 @@ assert (rf: exists n: nat,
           contradiction.
         }
   }
-exists {| start_symbol:= ss; rules:= rr; rules_finite:= rf |}.
+exists {| start_symbol:= ss; 
+          rules:= rr; 
+          t_eqdec:= t_eqdec g;
+          nt_eqdec:= nt_eqdec' (t_eqdec g) (emptyrules.nt_eqdec' (nt_eqdec g));
+          rules_finite:= rf |}.
 split.
 - apply g_equiv_split. 
   split. 
@@ -2270,7 +2289,11 @@ assert (rf: exists n: nat,
         - inversion H.
         }
   }
-exists {| start_symbol:= ss; rules:= rr; rules_finite:= rf |}.
+exists {| start_symbol:= ss;
+          rules:= rr; 
+          t_eqdec:= t_eqdec g;
+          nt_eqdec:= nt_eqdec' (t_eqdec g) (emptyrules.nt_eqdec' (nt_eqdec g));
+          rules_finite:= rf |}.
 split.
 - unfold g_equiv.
   intros s.

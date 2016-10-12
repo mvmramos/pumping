@@ -62,6 +62,8 @@ In ss ntl /\
 Record cfg: Type:= {
 start_symbol: non_terminal;
 rules: non_terminal -> sf -> Prop;
+t_eqdec: forall (x y:terminal), {x=y}+{x<>y};
+nt_eqdec: forall (x y:non_terminal), {x=y}+{x<>y};
 rules_finite: exists n: nat,
               exists ntl: nlist,
               exists tl: tlist,

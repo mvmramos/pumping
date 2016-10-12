@@ -38,6 +38,12 @@ Inductive g_cat_nt: Type:=
 | Transf1_cat_nt: non_terminal_1 -> g_cat_nt
 | Transf2_cat_nt: non_terminal_2 -> g_cat_nt.
 
+Lemma nt_eqdec':
+ (forall x y: non_terminal_1, {x=y}+{x<>y}) -> 
+ (forall x y: non_terminal_2, {x=y}+{x<>y}) -> 
+ (forall x y: g_cat_nt, {x=y}+{x<>y}).
+Proof. decide equality. Qed.
+
 Notation sf1:= (list (non_terminal_1 + terminal)).
 Notation sf2:= (list (non_terminal_2 + terminal)).
 Notation sfc:= (list (g_cat_nt + terminal)).
@@ -451,6 +457,8 @@ Qed.
 Definition g_cat (g1: cfg non_terminal_1 terminal) (g2: cfg non_terminal_2 terminal): (cfg g_cat_nt terminal):= {|
 start_symbol:= Start_cat;
 rules:= g_cat_rules g1 g2;
+t_eqdec:= t_eqdec g1;
+nt_eqdec:= nt_eqdec' (nt_eqdec g1) (nt_eqdec g2);
 rules_finite:= g_cat_finite g1 g2
 |}.
 

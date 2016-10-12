@@ -38,6 +38,12 @@ Inductive g_uni_nt: Type:=
 | Transf1_uni_nt: non_terminal_1 -> g_uni_nt
 | Transf2_uni_nt: non_terminal_2 -> g_uni_nt.
 
+Lemma nt_eqdec':
+ (forall x y:non_terminal_1, {x=y}+{x<>y}) ->
+ (forall x y:non_terminal_2, {x=y}+{x<>y}) ->
+ (forall x y:g_uni_nt, {x=y}+{x<>y}).
+Proof. decide equality. Qed.
+
 Notation sf1:= (list (non_terminal_1 + terminal)).
 Notation sf2:= (list (non_terminal_2 + terminal)).
 Notation sfu:= (list (g_uni_nt + terminal)).
@@ -463,6 +469,8 @@ Qed.
 Definition g_uni (g1: cfg non_terminal_1 terminal) (g2: cfg non_terminal_2 terminal): (cfg g_uni_nt terminal):= {|
 start_symbol:= Start_uni;
 rules:= g_uni_rules g1 g2;
+t_eqdec:= t_eqdec g1;
+nt_eqdec:= nt_eqdec' (nt_eqdec g1) (nt_eqdec g2);
 rules_finite:= g_uni_finite g1 g2
 |}.
 
