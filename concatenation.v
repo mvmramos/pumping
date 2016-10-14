@@ -6,9 +6,8 @@
    (iv) pumping lemma for context-free languages.
    
    More information can be found in the paper "Formalization of the
-   pumping lemma for context-free languages", submitted to
-   LATA 2016.
-   
+   Pumping Lemma for Context-Free Languages", submitted to JFR.
+
    Marcus Vinícius Midena Ramos
    mvmramos@gmail.com
    --------------------------------------------------------------------- *)
