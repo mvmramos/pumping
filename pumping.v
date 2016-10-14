@@ -6,8 +6,7 @@
    (iv) pumping lemma for context-free languages.
    
    More information can be found in the paper "Formalization of the
-   pumping lemma for context-free languages", submitted to
-   LATA 2016.
+   Pumping Lemma for Context-Free Languages", submitted to JFR.
    
    Marcus Vinícius Midena Ramos
    mvmramos@gmail.com
@@ -154,6 +153,8 @@ induction i.
 Qed.
 
 End Pumping.
+
+Section Pumping_2.
 
 Variable terminal: Type.
 Notation sentence:= (list terminal).
@@ -575,7 +576,6 @@ apply lang_eq_change_g with (non_terminal':= chomsky.non_terminal' (emptyrules.n
             - repeat rewrite <- app_assoc. 
               exact H20copy.
             }
-        + apply (nt_eqdec g').
         + rewrite H28.
           exact H24'.
       - apply cnf_bnts with (g:= g') (n:= n') (tl:= tl').
@@ -757,7 +757,7 @@ apply lang_eq_change_g with (non_terminal':= chomsky.non_terminal' (emptyrules.n
             left.
             reflexivity.
           }
-        apply pigeon in H29.
+        apply pigeon in H29. 
         + destruct H29 as [n [r1' [r2' [r3' H29]]]].
           rewrite H29 in H27.
           repeat rewrite map_app in H27.
@@ -1015,7 +1015,6 @@ apply lang_eq_change_g with (non_terminal':= chomsky.non_terminal' (emptyrules.n
             - repeat rewrite <- app_assoc. 
               exact H20copy.
             }
-        + apply (nt_eqdec g').
         + rewrite H28.
           exact H24'.
       - apply cnf_bnts with (g:= g') (n:= n') (tl:= tl').
@@ -1044,3 +1043,5 @@ apply lang_eq_change_g with (non_terminal':= chomsky.non_terminal' (emptyrules.n
   + exact H3.
 - exact H2.
 Qed.
+
+End Pumping_2.
